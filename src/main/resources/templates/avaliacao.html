@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação do Serviço de TI</title>
+    <style>
+        /* CSS incorporado aqui */
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh; display: flex;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 20px; padding: 30px;
+            max-width: 400px; width: 100%; text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h1 {
+            font-size: 1.5rem; margin-bottom: 25px; color: #333;
+        }
+        .botoes {
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        button {
+            padding: 15px; font-size: 1.1rem; border: none;
+            border-radius: 12px; cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            color: white; font-weight: bold;
+        }
+        .bom { background-color: #4caf50; }
+        .bom:hover { background-color: #43a047; transform: scale(1.05); }
+        .regular { background-color: #ff9800; }
+        .regular:hover { background-color: #fb8c00; transform: scale(1.05); }
+        .ruim { background-color: #f44336; }
+        .ruim:hover { background-color: #e53935; transform: scale(1.05); }
+        .mensagem {
+            margin-top: 20px; font-size: 1rem; color: #444;
+            opacity: 0; transition: opacity 0.5s ease;
+        }
+        .mensagem.ativo { opacity: 1; animation: slideIn 0.5s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 20px; }
+            button { font-size: 1rem; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Como foi o atendimento de TI?</h1>
+        <div class="botoes">
+            <button onclick="enviarNota(3)" class="bom">😊 Bom</button>
+            <button onclick="enviarNota(2)" class="regular">😐 Regular</button>
+            <button onclick="enviarNota(1)" class="ruim">😞 Ruim</button>
+        </div>
+        <p id="mensagem" class="mensagem"></p>
+    </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const jaVotou = localStorage.getItem("jaVotouTI");
+        const botoes = document.querySelectorAll("button");
+        const msg = document.getElementById("mensagem");
+
+        if (jaVotou) {
+            desabilitarBotoes();
+            msg.textContent = "Seu voto já foi registrado. Obrigado!";
+            msg.classList.add("ativo");
+        }
+
+        function desabilitarBotoes() {
+            botoes.forEach(btn => btn.disabled = true);
+        }
+
+        window.enviarNota = function(nota) {
+            if (localStorage.getItem("jaVotouTI")) return;
+
+            fetch("/ui/avaliar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nota: nota })
+            })
+            .then(res => res.json())
+            .then(data => {
+                msg.textContent = data.mensagem || data.erro || "Erro ao registrar!";
+                msg.classList.add("ativo");
+                desabilitarBotoes();
+                localStorage.setItem("jaVotouTI", "true");
+            })
+            .catch(() => {
+                msg.textContent = "Erro ao registrar!";
+                msg.classList.add("ativo");
+            });
+        };
+    });
+</script>
+</body>
+</html>

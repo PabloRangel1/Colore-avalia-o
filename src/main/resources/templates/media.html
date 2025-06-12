@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Avaliação</title>
+    <style>
+        body {
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .box h2 {
+            margin-bottom: 20px;
+        }
+        .resultado {
+            font-size: 1.5rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Média das Avaliações</h2>
+        <p th:text="'Período: ' + ${inicio} + ' até ' + ${fim}"></p>
+        <div class="resultado">
+            <p th:text="'Média: ' + ${media}"></p>
+            <p th:text="'Classificação: ' + ${classificacao}"></p>
+        </div>
+        <br>
+        <a href="/ui/media-form">Voltar</a>
+    </div>
+</body>
+</html>

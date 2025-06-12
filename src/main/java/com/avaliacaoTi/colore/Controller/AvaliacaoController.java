@@ -1,0 +1,65 @@
+package com.avaliacaoTi.colore.Controller;
+
+import com.avaliacaoTi.colore.Dto.AvaliacaoDTO;
+import com.avaliacaoTi.colore.Mapper.AvaliacaoMapper;
+import com.avaliacaoTi.colore.Model.AvaliacaoModel;
+import com.avaliacaoTi.colore.Repository.AvaliacaoRepository;
+import com.avaliacaoTi.colore.Service.AvaliacaoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/avaliacao")
+public class AvaliacaoController {
+    // Variavel de acesso ao JPA -> Banco
+    private AvaliacaoRepository avRep;
+    private AvaliacaoMapper avMap;
+    private AvaliacaoService avSer;
+
+    //Injetando Depedencia
+    public AvaliacaoController(AvaliacaoRepository avRep, AvaliacaoMapper avMap, AvaliacaoService avSer) {
+        this.avRep = avRep;
+        this.avMap = avMap;
+        this.avSer = avSer;
+    }
+
+    // Usar o retorno de mensagem ou seja ResponsyEntity
+    // Fazer POST -> Mandar as informações
+    @PostMapping("/criar")
+    public ResponseEntity<AvaliacaoDTO> criarAvaliacao(@RequestBody AvaliacaoDTO nota){
+        AvaliacaoModel avModel = avMap.toModel(nota); // Conversão para Model
+        avModel = avRep.save(avModel); // Salva no Banco de Dados
+        return ResponseEntity.ok(avMap.toDTO(avModel)); // Retorna no corpo da Requisão HTTP como ok - > (Funcionou)
+    }
+
+    // Get de Notas
+    @GetMapping("/media")
+    public ResponseEntity<List<AvaliacaoDTO>> listarMedia(){
+        List<AvaliacaoDTO> listaModel = avSer.listarAvaliacoes();
+        return ResponseEntity.ok(listaModel);
+    }
+
+
+    // Fazer um GET -> Trazer as informações
+   @GetMapping("/periodo")
+    public ResponseEntity<String> media(@RequestParam String inicio, @RequestParam String fim){
+    LocalDate i = LocalDate.parse(inicio);
+    LocalDate f = LocalDate.parse(fim);
+    double media = avSer.calcularMediaPeriodo(i, f);
+
+    String resultado;
+    if (media >= 2.5) {
+        resultado = "Bom";
+    } else if (media >= 1.5) {
+        resultado = "Regular";
+    } else {
+        resultado = "Ruim";
+    }
+
+    return ResponseEntity.ok("Média: " + media + " - " + resultado);
+}
+
+}
