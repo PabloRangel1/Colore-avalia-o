@@ -51,7 +51,7 @@ Classificação por média:
 
 ---
 
-## 🖥 Interface Web (Thymeleaf)
+##  Interface Web (Thymeleaf)
 
 ### `/ui/avaliar`
 
