@@ -65,48 +65,71 @@
         <div class="botoes">
             <button onclick="enviarNota(3)" class="bom">😊 Bom</button>
             <button onclick="enviarNota(2)" class="regular">😐 Regular</button>
-            <button onclick="enviarNota(1)" class="ruim">😞 Ruim</button>
+            <button onclick="enviarNota(1)" class="ruim">😞 Melhorar</button>
         </div>
         <p id="mensagem" class="mensagem"></p>
     </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const jaVotou = localStorage.getItem("jaVotouTI");
-        const botoes = document.querySelectorAll("button");
-        const msg = document.getElementById("mensagem");
+  document.addEventListener("DOMContentLoaded", () => {
+    const botoes = document.querySelectorAll("button");
+    const msg = document.getElementById("mensagem");
+    const votoTI = JSON.parse(localStorage.getItem("jaVotouTI"));
+    const hoje = new Date();
 
-        if (jaVotou) {
-            desabilitarBotoes();
-            msg.textContent = "Seu voto já foi registrado. Obrigado!";
-            msg.classList.add("ativo");
-        }
+    if (votoTI) {
+      const dataVoto = new Date(votoTI.data);
+      const limite = new Date();
+      limite.setDate(limite.getDate() - 30);
 
-        function desabilitarBotoes() {
-            botoes.forEach(btn => btn.disabled = true);
-        }
+      // Verifica se ainda está dentro dos 30 dias
+      if (dataVoto > limite) {
+        desabilitarBotoes();
+        msg.textContent = "Seu voto já foi registrado neste período. Obrigado!";
+        msg.classList.add("ativo");
+        return;
+      } else {
+        // Já passaram os 30 dias
+        msg.textContent = "Você já pode votar novamente!";
+        msg.classList.add("ativo");
+      }
+    }
 
-        window.enviarNota = function(nota) {
-            if (localStorage.getItem("jaVotouTI")) return;
+    function desabilitarBotoes() {
+      botoes.forEach(btn => btn.disabled = true);
+    }
 
-            fetch("/ui/avaliar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nota: nota })
-            })
-            .then(res => res.json())
-            .then(data => {
-                msg.textContent = data.mensagem || data.erro || "Erro ao registrar!";
-                msg.classList.add("ativo");
-                desabilitarBotoes();
-                localStorage.setItem("jaVotouTI", "true");
-            })
-            .catch(() => {
-                msg.textContent = "Erro ao registrar!";
-                msg.classList.add("ativo");
-            });
-        };
-    });
+    window.enviarNota = function(nota) {
+      const votoAtual = JSON.parse(localStorage.getItem("jaVotouTI"));
+      const hoje = new Date();
+      const limite = new Date();
+      limite.setDate(limite.getDate() - 30);
+
+      if (votoAtual && new Date(votoAtual.data) > limite) {
+        return; // Evita múltiplos votos
+      }
+
+      fetch("/ui/avaliar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nota: nota })
+      })
+      .then(res => res.json())
+      .then(data => {
+        msg.textContent = data.mensagem || data.erro || "Erro ao registrar!";
+        msg.classList.add("ativo");
+        desabilitarBotoes();
+        localStorage.setItem("jaVotouTI", JSON.stringify({ data: new Date().toISOString() }));
+      })
+      .catch(() => {
+        msg.textContent = "Erro ao registrar!";
+        msg.classList.add("ativo");
+      });
+    };
+  });
 </script>
+
 </body>
 </html>

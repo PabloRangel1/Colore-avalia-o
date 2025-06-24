@@ -28,13 +28,14 @@ public class AvaliacaoControllerUI {
     @ResponseBody
     public Map<String, String> salvarAvaliacao(@RequestBody Map<String, Integer> body) {
         Integer nota = body.get("nota");
-        if (nota == null || nota < 0 || nota > 10) {
-            return Map.of("erro", "Nota inválida. Deve ser entre 0 e 10.");
+        if (nota == null || nota < 1 || nota > 3) {
+            return Map.of("erro", "Nota inválida. Deve ser entre 1 e 3.");
         }
         avaliacaoService.salvarNota(nota);
         return Map.of("mensagem", "Avaliação registrada com sucesso!");
     }
 
+    // Formulário para consultar média
     @GetMapping("/media-form")
     public String mostrarFormularioDeMedia() {
         return "media-form"; // templates/media-form.html
@@ -49,11 +50,11 @@ public class AvaliacaoControllerUI {
         double media = avaliacaoService.calcularMediaPeriodo(dataInicio, dataFim);
 
         String resultado;
-        if (media >= 8) {
+        if (media >= 2.8) {
             resultado = "Excelente 😄";
-        } else if (media >= 6) {
+        } else if (media >= 2.3) {
             resultado = "Bom 😊";
-        } else if (media >= 4) {
+        } else if (media >= 1.8) {
             resultado = "Regular 😐";
         } else {
             resultado = "Ruim 😞";
