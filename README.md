@@ -61,7 +61,7 @@ Página inicial com os botões:
 - 😐 Regular (nota 2)
 - 😞 Ruim (nota 1)
 
-> *As notas podem ser ajustadas conforme desejado no JS ou backend.*
+
 
 ---
 
